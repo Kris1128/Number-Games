@@ -1,0 +1,1083 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>英文数字乐园 · 游戏合集</title>
+<style>
+  *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent;}
+  body{
+    font-family:-apple-system,BlinkMacSystemFont,'Segoe UI','PingFang SC','Microsoft YaHei',sans-serif;
+    background:#faf8f5;
+    min-height:100vh;color:#4a3f35;padding:20px 14px 60px;
+    background-image:radial-gradient(#f0e9df 1.5px, transparent 1.5px);
+    background-size:24px 24px;
+  }
+  .wrap{max-width:1050px;margin:0 auto;}
+
+  /* ---------- 首页 ---------- */
+  .home-title{
+    font-size:2rem;text-align:center;font-weight:900;letter-spacing:1px;
+    color:#d97706;margin-top:10px;
+  }
+  .home-sub{text-align:center;color:#a8a29e;margin-top:10px;font-size:.95rem;line-height:1.6;}
+  .game-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:16px;margin-top:30px;}
+  .game-card{
+    background:#fff;border:2px solid #f0e9df;border-radius:24px;padding:24px 14px;text-align:center;cursor:pointer;
+    box-shadow:0 6px 0 #f0e9df;transition:transform .15s,box-shadow .15s;font-family:inherit;
+  }
+  .game-card:hover{transform:translateY(-4px);box-shadow:0 10px 0 #f0e9df;}
+  .game-card:active{transform:translateY(2px);box-shadow:0 2px 0 #f0e9df;}
+  .card-emoji{font-size:2.6rem;line-height:1;filter:drop-shadow(0 4px 4px rgba(0,0,0,.06));}
+  .card-title{font-weight:800;font-size:1.1rem;margin-top:12px;color:#4a3f35;}
+  .card-desc{font-size:.8rem;color:#a8a29e;margin-top:8px;line-height:1.4;}
+
+  /* ---------- 游戏页 ---------- */
+  .view{display:none;}
+  .view.active{display:block;animation:fade .3s ease;}
+  @keyframes fade{from{opacity:0;transform:translateY(10px);}to{opacity:1;transform:none;}}
+
+  /* 顶栏 */
+  .topbar{
+    display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:16px;flex-wrap:wrap;
+  }
+  .back-btn{
+    background:#fff;border:2px solid #f0e9df;border-radius:99px;padding:10px 20px;font-weight:800;cursor:pointer;
+    box-shadow:0 4px 0 #f0e9df;font-family:inherit;font-size:.95rem;color:#a8a29e;
+    display:flex;align-items:center;gap:6px;transition:.1s;
+  }
+  .back-btn:active{transform:translateY(4px);box-shadow:0 0 0 #f0e9df;}
+  
+  /* 顶部控制区 */
+  .top-controls{
+    display:flex;align-items:center;gap:12px;flex-wrap:wrap;justify-content:center;
+    background:#fff;padding:12px 20px;border-radius:99px;border:2px solid #f0e9df;box-shadow:0 4px 0 #f0e9df;
+  }
+  .range-selector{display:flex;align-items:center;gap:8px;font-weight:800;color:#a8a29e;}
+  .select-wrap{
+    position:relative;background:#faf8f5;border:2px solid #f0e9df;border-radius:12px;
+    display:flex;align-items:center;padding:0 6px;
+  }
+  .select-wrap select{
+    appearance:none;background:transparent;border:none;outline:none;
+    font-family:inherit;font-weight:800;font-size:1.05rem;color:#4a3f35;
+    padding:8px 24px 8px 8px;cursor:pointer;text-align:center;
+  }
+  .select-wrap::after{
+    content:'▼';position:absolute;right:8px;top:50%;transform:translateY(-50%);
+    font-size:0.6rem;color:#a8a29e;pointer-events:none;
+  }
+  .range-sep{font-size:1.1rem;color:#d1d5db;}
+
+  .mode-switch{
+    display:flex;background:#faf8f5;border-radius:14px;padding:4px;border:2px solid #f0e9df;
+  }
+  .mode-btn{
+    border:none;background:transparent;padding:8px 16px;border-radius:10px;
+    font-weight:800;color:#a8a29e;cursor:pointer;font-family:inherit;font-size:.9rem;transition:.2s;
+  }
+  .mode-btn.active{background:#fff;color:#d97706;box-shadow:0 2px 6px rgba(217,119,6,.15);}
+
+  /* 游戏舞台 */
+  .stage-wrap{
+    margin-top:16px;position:relative;
+  }
+  .stage{
+    background:#fff;border-radius:30px;padding:24px;min-height:520px;
+    border:2px solid #f0e9df;box-shadow:0 8px 0 #f0e9df;
+    display:flex;flex-direction:column;
+  }
+
+  /* 单人模式居中 */
+  .single-stage{
+    display:flex; flex-direction:column; align-items:center; justify-content:center; gap:20px; flex:1; width: 100%;
+  }
+  #box {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+  }
+
+  /* 双人分屏 */
+  .dual-stage{display:flex;gap:20px;flex:1;}
+  .player-zone{
+    flex:1;border-radius:24px;padding:16px;display:flex;flex-direction:column;align-items:center;
+    border:3px solid transparent;transition:.3s;min-width:0;
+  }
+  .p1-zone{border-color:#bae6fd;background:#f0f9ff;}
+  .p2-zone{border-color:#fecdd3;background:#fff1f2;}
+  
+  .p-header{
+    display:flex;align-items:center;justify-content:space-between;width:100%;margin-bottom:8px;
+  }
+  .p-header-left{display:flex;align-items:center;gap:6px;}
+  .p-avatar{font-size:1.6rem;}
+  .p-name{font-weight:900;font-size:1.05rem;color:#4a3f35;}
+  .p-score{
+    font-size:1.2rem;font-weight:900;color:#fff;padding:4px 12px;border-radius:10px;
+    min-width:50px;text-align:center; transition: transform 0.2s;
+  }
+  .p-score.pop { transform: scale(1.3); }
+  .p1-zone .p-score{background:#38bdf8;box-shadow:0 3px 0 #0284c7;}
+  .p2-zone .p-score{background:#fb7185;box-shadow:0 3px 0 #e11d48;}
+
+  /* 倒计时与进度条 */
+  .p-info{
+    display:flex;justify-content:space-between;width:100%;
+    font-size:.82rem;font-weight:800;color:#64748b;margin-bottom:6px;
+  }
+  .timer{color:#d97706;font-variant-numeric:tabular-nums;}
+  .timer-bar{
+    width:100%;height:8px;background:#e2e8f0;border-radius:4px;overflow:hidden;margin-bottom:16px;
+  }
+  .timer-fill{
+    height:100%;background:#fbbf24;width:100%;
+    transition:width .1s linear, background .2s;
+  }
+  .timer-fill.warning{background:#ef4444;}
+
+  /* 通用游戏元素 */
+  .hint-text{color:#a8a29e;font-size:.9rem;text-align:center;font-weight:600;}
+  .big-number{
+    font-size:5rem;font-weight:900;line-height:1;
+    color:#d97706;filter:drop-shadow(0 4px 6px rgba(217,119,6,.15));
+  }
+  .big-word{
+    font-size:2.2rem;font-weight:800;color:#4a3f35;text-align:center;
+    word-break:break-word;line-height:1.2;
+  }
+  
+  .options{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;width:100%;max-width:500px;}
+  .opt-btn{
+    padding:16px 10px;border-radius:16px;border:2px solid #f0e9df;background:#faf8f5;
+    font-size:1.15rem;font-weight:800;color:#4a3f35;cursor:pointer;font-family:inherit;
+    transition:.15s;word-break:break-word;line-height:1.2;box-shadow:0 4px 0 #f0e9df;
+  }
+  .opt-btn:hover:not(:disabled){transform:translateY(-2px);box-shadow:0 6px 0 #f0e9df;}
+  .opt-btn:active:not(:disabled){transform:translateY(2px);box-shadow:0 2px 0 #f0e9df;}
+  .opt-btn.num{font-size:1.8rem;}
+  .opt-btn:disabled{cursor:default;}
+  .opt-btn.correct{background:#dcfce7!important;border-color:#22c55e!important;color:#15803d!important;box-shadow:0 4px 0 #22c55e!important;animation:pop .3s;}
+  .opt-btn.wrong{background:#fee2e2!important;border-color:#ef4444!important;color:#b91c1c!important;box-shadow:0 4px 0 #ef4444!important;animation:shake .4s;}
+
+  /* 双人模式下组件尺寸微调 */
+  .dual-stage .opt-btn { font-size: 1rem; padding: 12px 6px; }
+  .dual-stage .opt-btn.num { font-size: 1.4rem; }
+
+  /* 喇叭按钮 */
+  .speaker-btn{
+    width:70px;height:70px;border-radius:50%;border:none;font-size:1.8rem;cursor:pointer;
+    background:#fbbf24;color:#fff;box-shadow:0 5px 0 #d97706;transition:transform .1s;
+    display:flex;align-items:center;justify-content:center;
+  }
+  .speaker-btn:active{transform:translateY(5px);box-shadow:0 0 0 #d97706;}
+
+  /* 比大小 */
+  .compare-row{display:flex;gap:12px;width:100%;max-width:500px;}
+  .compare-card{
+    flex:1;padding:20px 8px;border-radius:20px;border:2px solid #f0e9df;background:#faf8f5;
+    font-size:1.15rem;font-weight:800;color:#4a3f35;cursor:pointer;font-family:inherit;
+    transition:.15s;word-break:break-word;line-height:1.25;box-shadow:0 6px 0 #f0e9df;
+  }
+  .compare-card:hover:not(:disabled){transform:translateY(-3px);box-shadow:0 9px 0 #f0e9df;}
+  .compare-card:active:not(:disabled){transform:translateY(4px);box-shadow:0 2px 0 #f0e9df;}
+  .compare-card.correct{background:#dcfce7;border-color:#22c55e;color:#15803d;box-shadow:0 6px 0 #22c55e;animation:pop .3s;}
+  .compare-card.wrong{background:#fee2e2;border-color:#ef4444;color:#b91c1c;box-shadow:0 6px 0 #ef4444;animation:shake .4s;}
+
+  /* 配对 */
+  .match-grid{
+    display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;width:100%;
+  }
+  .match-card{
+    padding:12px 6px;min-height:60px;border-radius:14px;border:2px solid #f0e9df;background:#faf8f5;
+    font-weight:800;cursor:pointer;font-family:inherit;font-size:.95rem;color:#4a3f35;
+    transition:.15s;word-break:break-word;line-height:1.2;
+    display:flex;align-items:center;justify-content:center;box-shadow:0 4px 0 #f0e9df;
+  }
+  .match-card.flipped{background:#fff;border-color:#cbd5e1;color:#334155;box-shadow:0 4px 0 #cbd5e1;}
+  .match-card.matched{opacity:0.15;pointer-events:none;transform:scale(.9);box-shadow:none;}
+
+  /* 英文排序（原数字排序）适配 */
+  .order-slots,.order-pool{display:flex;gap:8px;flex-wrap:wrap;justify-content:center;width:100%;}
+  .slot{
+    min-width:60px; padding:10px 14px; border-radius:14px;border:2px dashed #cbd5e1;background:#faf8f5;
+    display:flex;align-items:center;justify-content:center;font-size:1rem;font-weight:800;color:#94a3b8;
+    line-height: 1.2;
+  }
+  .slot.filled{border-style:solid;border-color:#fbbf24;background:#fef3c7;color:#d97706;animation:pop .3s;box-shadow:0 3px 0 #fbbf24;}
+  .order-card{
+    min-width:60px; padding:10px 14px; border-radius:14px;border:none;color:#fff;font-size:1.05rem;font-weight:800;
+    cursor:pointer;font-family:inherit;background:#fbbf24;box-shadow:0 4px 0 #d97706;transition:.1s;
+    line-height: 1.2; word-break: break-word;
+  }
+  .order-card:active{transform:translateY(4px);box-shadow:0 0 0 #d97706;}
+
+  /* 结果面板 */
+  .result-overlay{
+    position:absolute;inset:0;background:rgba(255,255,255,.95);border-radius:30px;
+    display:flex;flex-direction:column;align-items:center;justify-content:center;gap:20px;
+    z-index:10;animation:fade .3s;backdrop-filter:blur(4px);
+  }
+  .res-title{font-size:2rem;font-weight:900;color:#4a3f35;}
+  .res-scores{display:flex;gap:30px;}
+  .rs{padding:16px 30px;border-radius:20px;font-weight:900;font-size:1.4rem;color:#fff;}
+  .rs.p1{background:#38bdf8;box-shadow:0 6px 0 #0284c7;}
+  .rs.p2{background:#fb7185;box-shadow:0 6px 0 #e11d48;}
+  .rs.winner{transform:scale(1.1);}
+  .btn-primary{
+    padding:14px 36px;border-radius:16px;border:none;color:#fff;font-weight:900;font-size:1.1rem;
+    cursor:pointer;font-family:inherit;background:#d97706;box-shadow:0 6px 0 #b45309;transition:.1s;
+  }
+  .btn-primary:active{transform:translateY(6px);box-shadow:0 0 0 #b45309;}
+
+  @keyframes pop{0%{transform:scale(.8);}70%{transform:scale(1.05);}100%{transform:scale(1);}}
+  @keyframes shake{0%,100%{transform:translateX(0);}20%{transform:translateX(-6px);}60%{transform:translateX(6px);}80%{transform:translateX(-3px);}}
+  .shake{animation:shake .4s;}
+
+  @media (max-width:760px){
+    .dual-stage{flex-direction:column;}
+    .player-zone{padding:12px;}
+    .big-number{font-size:3.5rem;}
+    .big-word{font-size:1.6rem;}
+    .top-controls{padding:10px;border-radius:20px;}
+    .match-grid{grid-template-columns:repeat(4,minmax(0,1fr));}
+    .match-card{font-size:.8rem;min-height:50px;padding:8px 4px;}
+    .slot,.order-card{min-width:50px;padding:8px 10px;font-size:.9rem;}
+    .compare-card{font-size:.9rem;padding:16px 6px;}
+    .opt-btn{padding:12px 6px;font-size:1rem;}
+    .opt-btn.num{font-size:1.4rem;}
+    .p-header{margin-bottom:4px;}
+    .p-info{font-size:.75rem;}
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <!-- ===== 首页 ===== -->
+  <section id="home" class="view active">
+    <h1 class="home-title">🔢 英文数字乐园</h1>
+    <p class="home-sub">自由选择范围 · 单人练习 · 双人限时抢答PK</p>
+    <div class="game-grid" id="gameGrid"></div>
+  </section>
+
+  <!-- ===== 游戏页 ===== -->
+  <section id="gameView" class="view">
+    <div class="topbar">
+      <button class="back-btn" id="backBtn">← 返回</button>
+      <div class="top-controls">
+        <div class="range-selector">
+          <div class="select-wrap">
+            <select id="minSelect"></select>
+          </div>
+          <span class="range-sep">~</span>
+          <div class="select-wrap">
+            <select id="maxSelect"></select>
+          </div>
+        </div>
+        <div class="mode-switch">
+          <button class="mode-btn" data-mode="single">🧍 单人</button>
+          <button class="mode-btn" data-mode="dual">⚔️ 双人PK</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="stage-wrap">
+      <div class="stage" id="stage"></div>
+    </div>
+  </section>
+
+</div>
+
+<script>
+/* =========================================================
+   基础工具
+   ========================================================= */
+const DUAL_TOTAL_QUESTIONS = 10;
+const DUAL_TIME_LIMIT = 8000; // 8秒
+const DUAL_POINTS_PER_Q = 10;
+
+const ONES = ['zero','one','two','three','four','five','six','seven','eight','nine',
+  'ten','eleven','twelve','thirteen','fourteen','fifteen','sixteen','seventeen','eighteen','nineteen'];
+const TENS = ['','','twenty','thirty','forty','fifty','sixty','seventy','eighty','ninety'];
+
+function numToWord(n){
+  if(n < 0 || n > 100) return String(n);
+  if(n < 20) return ONES[n];
+  if(n === 100) return 'one hundred';
+  const t = Math.floor(n / 10), o = n % 10;
+  return TENS[t] + (o ? '-' + ONES[o] : '');
+}
+
+const randInt = (a, b) => Math.floor(Math.random() * (b - a + 1)) + a;
+
+function shuffle(arr){
+  for(let i = arr.length - 1; i > 0; i--){
+    const j = Math.floor(Math.random() * (i + 1));
+    [arr[i], arr[j]] = [arr[j], arr[i]];
+  }
+  return arr;
+}
+
+function pickN(min, max, n){
+  const pool = [];
+  for(let i = min; i <= max; i++) pool.push(i);
+  shuffle(pool);
+  return pool.slice(0, Math.min(n, pool.length));
+}
+
+function makeOptions(answer, min, max, count = 4){
+  const total = max - min + 1;
+  count = Math.min(count, total);
+  const set = new Set([answer]);
+  let guard = 0;
+  while(set.size < count && guard++ < 900){
+    let cand = Math.random() < 0.65 ? answer + randInt(-6, 6) : randInt(min, max);
+    if(cand < min || cand > max) cand = randInt(min, max);
+    if(cand !== answer) set.add(cand);
+  }
+  let k = min;
+  while(set.size < count && k <= max){ set.add(k); k++; }
+  return shuffle([...set]);
+}
+
+/* 音效 */
+let audioCtx = null;
+function tone(freq, dur, delay = 0, type = 'sine'){
+  try{
+    audioCtx = audioCtx || new (window.AudioContext || window.webkitAudioContext)();
+    const t0 = audioCtx.currentTime + delay;
+    const o = audioCtx.createOscillator(), g = audioCtx.createGain();
+    o.type = type; o.frequency.setValueAtTime(freq, t0);
+    g.gain.setValueAtTime(0.001, t0);
+    g.gain.exponentialRampToValueAtTime(0.16, t0 + 0.02);
+    g.gain.exponentialRampToValueAtTime(0.001, t0 + dur);
+    o.connect(g); g.connect(audioCtx.destination);
+    o.start(t0); o.stop(t0 + dur + 0.05);
+  }catch(e){}
+}
+const beepCorrect = () => { tone(660, .12); tone(880, .16, .1); };
+const beepWrong   = () => { tone(220, .18, 0, 'triangle'); tone(180, .22, .12, 'triangle'); };
+
+/* 语音 */
+let voices = [];
+function loadVoices(){ if('speechSynthesis' in window) voices = speechSynthesis.getVoices(); }
+if('speechSynthesis' in window){
+  loadVoices();
+  speechSynthesis.onvoiceschanged = loadVoices;
+}
+function speak(text){
+  if(!('speechSynthesis' in window)) return;
+  speechSynthesis.cancel();
+  const u = new SpeechSynthesisUtterance(text);
+  u.lang = 'en-US'; u.rate = 0.8; u.pitch = 1;
+  const v = voices.find(v => /en[-_]US/i.test(v.lang)) || voices.find(v => /^en/i.test(v.lang));
+  if(v) u.voice = v;
+  speechSynthesis.speak(u);
+}
+function stopSpeak(){ if('speechSynthesis' in window) speechSynthesis.cancel(); }
+
+/* =========================================================
+   全局状态
+   ========================================================= */
+const state = {
+  gameId: null,
+  mode: 'single',
+  min: 1,
+  max: 10,
+  finished: false,
+  dual: null
+};
+
+const stage      = document.getElementById('stage');
+const gameGrid   = document.getElementById('gameGrid');
+const minSelect  = document.getElementById('minSelect');
+const maxSelect  = document.getElementById('maxSelect');
+
+/* =========================================================
+   范围选择器初始化
+   ========================================================= */
+function initRangeSelects(){
+  let minOpts = '', maxOpts = '';
+  for(let i = 1; i <= 100; i++){
+    minOpts += `<option value="${i}">${i}</option>`;
+    maxOpts += `<option value="${i}">${i}</option>`;
+  }
+  minSelect.innerHTML = minOpts;
+  maxSelect.innerHTML = maxOpts;
+
+  const handleRangeChange = () => {
+    let min = parseInt(minSelect.value, 10);
+    let max = parseInt(maxSelect.value, 10);
+
+    if(min >= max){
+      if(document.activeElement === minSelect){
+        max = Math.min(100, min + 3);
+        maxSelect.value = max;
+      }else{
+        min = Math.max(1, max - 3);
+        minSelect.value = min;
+      }
+    }
+    state.min = min;
+    state.max = max;
+    
+    if(state.gameId){
+      GAMES[state.gameId].init();
+    }
+  };
+
+  minSelect.addEventListener('change', handleRangeChange);
+  maxSelect.addEventListener('change', handleRangeChange);
+}
+
+function updateRangeUI(){
+  minSelect.value = state.min;
+  maxSelect.value = state.max;
+}
+
+/* =========================================================
+   模式切换 & 视图
+   ========================================================= */
+function showView(id){
+  document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+document.querySelectorAll('.mode-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    if(btn.dataset.mode === state.mode) return;
+    state.mode = btn.dataset.mode;
+    document.querySelectorAll('.mode-btn').forEach(b =>
+      b.classList.toggle('active', b.dataset.mode === state.mode));
+    if(state.gameId) GAMES[state.gameId].init();
+  });
+});
+
+/* =========================================================
+   通用界面生成器
+   ========================================================= */
+function buildSingleHTML(title, contentHTML){
+  return `
+    <div class="single-stage">
+      <div class="hint-text" style="font-size:1.1rem;color:#d97706;font-weight:800;margin-bottom:10px;">${title}</div>
+      ${contentHTML}
+    </div>`;
+}
+
+function buildDualHTML(){
+  return `
+    <div class="dual-stage">
+      <div class="player-zone p1-zone">
+        <div class="p-header">
+          <div class="p-header-left">
+            <span class="p-avatar">🐯</span>
+            <span class="p-name">玩家 A</span>
+          </div>
+          <span class="p-score" id="score-p1">0</span>
+        </div>
+        <div class="p-info">
+          <span id="progress-p1">第 1/10 题</span>
+          <span id="timer-p1" class="timer">⏱ 8s</span>
+        </div>
+        <div class="timer-bar"><div class="timer-fill" id="timer-fill-p1"></div></div>
+        <div class="p-body" id="body-p1" style="width:100%; flex:1; display:flex; flex-direction:column; align-items:center; justify-content:center;"></div>
+      </div>
+      <div class="player-zone p2-zone">
+        <div class="p-header">
+          <div class="p-header-left">
+            <span class="p-avatar">🐼</span>
+            <span class="p-name">玩家 B</span>
+          </div>
+          <span class="p-score" id="score-p2">0</span>
+        </div>
+        <div class="p-info">
+          <span id="progress-p2">第 1/10 题</span>
+          <span id="timer-p2" class="timer">⏱ 8s</span>
+        </div>
+        <div class="timer-bar"><div class="timer-fill" id="timer-fill-p2"></div></div>
+        <div class="p-body" id="body-p2" style="width:100%; flex:1; display:flex; flex-direction:column; align-items:center; justify-content:center;"></div>
+      </div>
+    </div>`;
+}
+
+/* =========================================================
+   双人抢答核心逻辑
+   ========================================================= */
+function startDualGame(gameId) {
+  state.dual = {
+    scoreA: 0,
+    scoreB: 0,
+    qIndex: 0,
+    totalQ: DUAL_TOTAL_QUESTIONS,
+    timeLeft: 8,
+    locked: false,
+    timerId: null,
+    gameId: gameId,
+    currentData: null
+  };
+  state.finished = false;
+  document.querySelector('.result-overlay')?.remove();
+  
+  stage.innerHTML = buildDualHTML();
+  
+  // 更新初始分数UI
+  document.getElementById('score-p1').textContent = 0;
+  document.getElementById('score-p2').textContent = 0;
+  
+  loadSharedQuestion(gameId);
+}
+
+function loadSharedQuestion(gameId) {
+  const d = state.dual;
+  if (d.qIndex >= d.totalQ) {
+    showDualResult();
+    return;
+  }
+  
+  d.locked = false;
+  d.timeLeft = 8;
+  
+  // 更新进度
+  const progressText = `第 ${d.qIndex + 1}/${d.totalQ} 题`;
+  document.getElementById('progress-p1').textContent = progressText;
+  document.getElementById('progress-p2').textContent = progressText;
+  document.getElementById('timer-p1').textContent = `⏱ 8s`;
+  document.getElementById('timer-p2').textContent = `⏱ 8s`;
+  document.getElementById('timer-fill-p1').style.width = '100%';
+  document.getElementById('timer-fill-p2').style.width = '100%';
+  document.getElementById('timer-fill-p1').classList.remove('warning');
+  document.getElementById('timer-fill-p2').classList.remove('warning');
+
+  // 生成题目数据
+  let data;
+  if (gameId === 'num2word') {
+    const answer = randInt(state.min, state.max);
+    data = { answer, opts: makeOptions(answer, state.min, state.max, 4) };
+  } else if (gameId === 'word2num') {
+    const answer = randInt(state.min, state.max);
+    data = { answer, opts: makeOptions(answer, state.min, state.max, 4) };
+  } else if (gameId === 'listen') {
+    const answer = randInt(state.min, state.max);
+    data = { answer, opts: makeOptions(answer, state.min, state.max, 4) };
+  } else if (gameId === 'compare') {
+    const pair = pickN(state.min, state.max, 2);
+    data = { answer: Math.max(...pair), opts: pair };
+  } else if (gameId === 'match') {
+    const answer = randInt(state.min, state.max);
+    data = { answer, opts: makeOptions(answer, state.min, state.max, 4) };
+  } else if (gameId === 'order') {
+    const opts = pickN(state.min, state.max, 4);
+    const isMax = Math.random() > 0.5;
+    const answer = isMax ? Math.max(...opts) : Math.min(...opts);
+    data = { answer, opts, isMax };
+  }
+  d.currentData = data;
+
+  // 渲染左右两侧
+  renderDualZone(0, gameId, data);
+  renderDualZone(1, gameId, data);
+
+  // 启动共享倒计时
+  clearInterval(d.timerId);
+  d.timerId = setInterval(() => {
+    d.timeLeft -= 0.1;
+    if (d.timeLeft <= 0) {
+      clearInterval(d.timerId);
+      if (!d.locked) handleSharedTimeout(gameId);
+    } else {
+      const sec = Math.ceil(d.timeLeft);
+      document.getElementById('timer-p1').textContent = `⏱ ${sec}s`;
+      document.getElementById('timer-p2').textContent = `⏱ ${sec}s`;
+      const pct = (d.timeLeft / 8) * 100;
+      document.getElementById('timer-fill-p1').style.width = `${pct}%`;
+      document.getElementById('timer-fill-p2').style.width = `${pct}%`;
+      if (d.timeLeft <= 3) {
+        document.getElementById('timer-fill-p1').classList.add('warning');
+        document.getElementById('timer-fill-p2').classList.add('warning');
+      }
+    }
+  }, 100);
+}
+
+function handleSharedTimeout(gameId) {
+  const d = state.dual;
+  if (d.locked) return;
+  d.locked = true;
+  
+  // 禁用所有按钮
+  const p1Btns = document.getElementById('body-p1').querySelectorAll('button');
+  const p2Btns = document.getElementById('body-p2').querySelectorAll('button');
+  p1Btns.forEach(b => b.disabled = true);
+  p2Btns.forEach(b => b.disabled = true);
+  
+  setTimeout(() => {
+    d.qIndex++;
+    loadSharedQuestion(gameId);
+  }, 1000);
+}
+
+function onPlayerAnswer(playerIdx, isCorrect, btn) {
+  const d = state.dual;
+  if (d.locked) return;
+  
+  if (isCorrect) {
+    d.locked = true;
+    clearInterval(d.timerId);
+    beepCorrect();
+    
+    // 加分
+    if (playerIdx === 0) {
+      d.scoreA += DUAL_POINTS_PER_Q;
+      const el = document.getElementById('score-p1');
+      el.textContent = d.scoreA;
+      el.classList.add('pop');
+      setTimeout(() => el.classList.remove('pop'), 300);
+    } else {
+      d.scoreB += DUAL_POINTS_PER_Q;
+      const el = document.getElementById('score-p2');
+      el.textContent = d.scoreB;
+      el.classList.add('pop');
+      setTimeout(() => el.classList.remove('pop'), 300);
+    }
+    
+    // 两边显示正确高亮
+    const p1Btns = document.getElementById('body-p1').querySelectorAll('button');
+    const p2Btns = document.getElementById('body-p2').querySelectorAll('button');
+    p1Btns.forEach(b => { if (+b.dataset.val === d.currentData.answer) b.classList.add('correct'); b.disabled = true; });
+    p2Btns.forEach(b => { if (+b.dataset.val === d.currentData.answer) b.classList.add('correct'); b.disabled = true; });
+    
+    // 延迟跳下一题
+    setTimeout(() => {
+      d.qIndex++;
+      loadSharedQuestion(d.gameId);
+    }, 1000);
+    
+  } else {
+    beepWrong();
+    btn.classList.add('wrong');
+    btn.disabled = true;
+    
+    // 检查是否双方都答错了
+    const p1Btns = document.getElementById('body-p1').querySelectorAll('button');
+    const p2Btns = document.getElementById('body-p2').querySelectorAll('button');
+    let allDisabled = true;
+    p1Btns.forEach(b => { if (!b.disabled) allDisabled = false; });
+    p2Btns.forEach(b => { if (!b.disabled) allDisabled = false; });
+    
+    if (allDisabled) {
+      d.locked = true;
+      clearInterval(d.timerId);
+      // 两边高亮正确答案
+      p1Btns.forEach(b => { if (+b.dataset.val === d.currentData.answer) b.classList.add('correct'); });
+      p2Btns.forEach(b => { if (+b.dataset.val === d.currentData.answer) b.classList.add('correct'); });
+      
+      setTimeout(() => {
+        d.qIndex++;
+        loadSharedQuestion(d.gameId);
+      }, 1200);
+    }
+  }
+}
+
+function renderDualZone(playerIdx, gameId, data) {
+  const container = document.getElementById(`body-p${playerIdx + 1}`);
+  let html = '';
+  
+  if (gameId === 'num2word') {
+    html = `
+      <div class="big-number" style="font-size:3.5rem;">${data.answer}</div>
+      <div class="options" style="margin-top:16px;">
+        ${data.opts.map(o => `<button class="opt-btn" data-val="${o}">${numToWord(o)}</button>`).join('')}
+      </div>`;
+  } else if (gameId === 'word2num') {
+    html = `
+      <div class="big-word" style="font-size:2rem;">${numToWord(data.answer)}</div>
+      <div class="options" style="margin-top:16px;">
+        ${data.opts.map(o => `<button class="opt-btn num" data-val="${o}">${o}</button>`).join('')}
+      </div>`;
+  } else if (gameId === 'listen') {
+    html = `
+      <button class="speaker-btn" id="spk-${playerIdx}">🔊</button>
+      <div class="options" style="margin-top:16px;">
+        ${data.opts.map(o => `<button class="opt-btn num" data-val="${o}">${o}</button>`).join('')}
+      </div>`;
+  } else if (gameId === 'compare') {
+    html = `
+      <div class="compare-row" style="margin-top:16px;">
+        ${data.opts.map(o => `<button class="compare-card" data-val="${o}">${numToWord(o)}</button>`).join('')}
+      </div>`;
+  } else if (gameId === 'match') {
+    html = `
+      <div class="hint-text" style="font-size:1.1rem;margin-bottom:16px;color:#d97706;font-weight:800;">请找出 <span style="font-size:1.6rem">${data.answer}</span> 的英文</div>
+      <div class="options" style="margin-top:4px;">
+        ${data.opts.map(o => `<button class="opt-btn" data-val="${o}">${numToWord(o)}</button>`).join('')}
+      </div>`;
+  } else if (gameId === 'order') {
+    // 双人模式下的英文排排看：抢答最大/最小的英文单词
+    html = `
+      <div class="hint-text" style="font-size:1.1rem;margin-bottom:16px;color:#d97706;font-weight:800;">点击 <span style="font-size:1.4rem;color:#ef4444">${data.isMax ? '最大' : '最小'}</span> 的英文</div>
+      <div class="options" style="margin-top:4px;">
+        ${data.opts.map(o => `<button class="opt-btn" data-val="${o}">${numToWord(o)}</button>`).join('')}
+      </div>`;
+  }
+  
+  container.innerHTML = html;
+  
+  // 音频仅播报一次
+  if (gameId === 'listen') {
+    container.querySelector(`#spk-${playerIdx}`).onclick = () => speak(numToWord(data.answer));
+    if (playerIdx === 0) setTimeout(() => speak(numToWord(data.answer)), 400);
+  }
+  
+  // 绑定点击事件
+  const btns = container.querySelectorAll('button');
+  btns.forEach(btn => {
+    if (btn.id && btn.id.startsWith('spk')) return;
+    btn.onclick = () => {
+      const val = +btn.dataset.val;
+      const isCorrect = val === data.answer;
+      onPlayerAnswer(playerIdx, isCorrect, btn);
+    };
+  });
+}
+
+function showDualResult() {
+  state.finished = true;
+  stopSpeak();
+  const s1 = state.dual.scoreA;
+  const s2 = state.dual.scoreB;
+  let title = s1 > s2 ? '🐯 玩家A 获胜！' : (s2 > s1 ? '🐼 玩家B 获胜！' : '🤝 平局！');
+  
+  const overlay = document.createElement('div');
+  overlay.className = 'result-overlay';
+  overlay.innerHTML = `
+    <div class="res-title">${title}</div>
+    <div class="res-scores">
+      <div class="rs p1 ${s1 >= s2 ? 'winner' : ''}">🐯 ${s1}</div>
+      <div class="rs p2 ${s2 >= s1 ? 'winner' : ''}">🐼 ${s2}</div>
+    </div>
+    <button class="btn-primary" id="restartBtn">再来一局</button>
+  `;
+  document.querySelector('.stage-wrap').appendChild(overlay);
+  overlay.querySelector('#restartBtn').onclick = () => {
+    overlay.remove();
+    GAMES[state.gameId].init();
+  };
+}
+
+/* =========================================================
+   单人模式具体渲染
+   ========================================================= */
+
+function handleSingleChoice(clickedBtn, answer, allBtns, nextFn){
+  if(state.finished) return;
+  allBtns.forEach(b => b.disabled = true);
+  const correct = +clickedBtn.dataset.val === answer;
+
+  if(correct){
+    clickedBtn.classList.add('correct');
+    beepCorrect();
+    setTimeout(nextFn, 800);
+  }else{
+    clickedBtn.classList.add('wrong');
+    allBtns.find(b => +b.dataset.val === answer)?.classList.add('correct');
+    beepWrong();
+    setTimeout(nextFn, 1400);
+  }
+}
+
+/* ----- 游戏 1：看数字选单词 ----- */
+function renderSingleNum2Word(container, nextFn) {
+  const answer = randInt(state.min, state.max);
+  const opts = makeOptions(answer, state.min, state.max, 4);
+  container.innerHTML = `
+    <div class="big-number">${answer}</div>
+    <div class="options" style="margin-top:16px;">
+      ${opts.map(o => `<button class="opt-btn" data-val="${o}">${numToWord(o)}</button>`).join('')}
+    </div>`;
+  const btns = [...container.querySelectorAll('.opt-btn')];
+  container.querySelector('.options').onclick = e => {
+    const btn = e.target.closest('.opt-btn');
+    if(!btn || btn.disabled) return;
+    if(+btn.dataset.val === answer) speak(numToWord(answer));
+    handleSingleChoice(btn, answer, btns, nextFn);
+  };
+}
+
+function initNum2Word(){
+  if(state.mode === 'single'){
+    stage.innerHTML = buildSingleHTML('这个数字的英文是？', `<div id="box"></div>`);
+    const next = () => renderSingleNum2Word(document.getElementById('box'), next);
+    next();
+  }else{
+    startDualGame('num2word');
+  }
+}
+
+/* ----- 游戏 2：看单词选数字 ----- */
+function renderSingleWord2Num(container, nextFn) {
+  const answer = randInt(state.min, state.max);
+  const opts = makeOptions(answer, state.min, state.max, 4);
+  container.innerHTML = `
+    <div class="big-word">${numToWord(answer)}</div>
+    <div class="options" style="margin-top:16px;">
+      ${opts.map(o => `<button class="opt-btn num" data-val="${o}">${o}</button>`).join('')}
+    </div>`;
+  const btns = [...container.querySelectorAll('.opt-btn')];
+  container.querySelector('.options').onclick = e => {
+    const btn = e.target.closest('.opt-btn');
+    if(!btn || btn.disabled) return;
+    handleSingleChoice(btn, answer, btns, nextFn);
+  };
+}
+
+function initWord2Num(){
+  if(state.mode === 'single'){
+    stage.innerHTML = buildSingleHTML('这个英文是哪个数字？', `<div id="box"></div>`);
+    const next = () => renderSingleWord2Num(document.getElementById('box'), next);
+    next();
+  }else{
+    startDualGame('word2num');
+  }
+}
+
+/* ----- 游戏 3：听音选数字 ----- */
+function renderSingleListen(container, nextFn) {
+  const answer = randInt(state.min, state.max);
+  const opts = makeOptions(answer, state.min, state.max, 4);
+  container.innerHTML = `
+    <button class="speaker-btn" id="spk">🔊</button>
+    <div class="options" style="margin-top:16px;">
+      ${opts.map(o => `<button class="opt-btn num" data-val="${o}">${o}</button>`).join('')}
+    </div>`;
+  const btns = [...container.querySelectorAll('.opt-btn')];
+  container.querySelector('#spk').onclick = () => speak(numToWord(answer));
+  setTimeout(() => speak(numToWord(answer)), 400);
+
+  container.querySelector('.options').onclick = e => {
+    const btn = e.target.closest('.opt-btn');
+    if(!btn || btn.disabled) return;
+    handleSingleChoice(btn, answer, btns, nextFn);
+  };
+}
+
+function initListen(){
+  if(state.mode === 'single'){
+    stage.innerHTML = buildSingleHTML('听发音，选出听到的数字', `<div id="box"></div>`);
+    const next = () => renderSingleListen(document.getElementById('box'), next);
+    next();
+  }else{
+    startDualGame('listen');
+  }
+}
+
+/* ----- 游戏 4：数字比大小 ----- */
+function renderSingleCompare(container, nextFn) {
+  const pair = pickN(state.min, state.max, 2);
+  const answer = Math.max(pair[0], pair[1]);
+  const cards = Math.random() < 0.5 ? pair : [pair[1], pair[0]];
+
+  container.innerHTML = `
+    <div class="compare-row">
+      ${cards.map(n => `<button class="compare-card" data-val="${n}">${numToWord(n)}</button>`).join('')}
+    </div>`;
+  const btns = [...container.querySelectorAll('.compare-card')];
+  btns.forEach(btn => {
+    btn.onclick = () => {
+      if(state.finished) return;
+      btns.forEach(b => b.disabled = true);
+      const val = +btn.dataset.val;
+      const correct = val === answer;
+      if(correct){
+        btn.classList.add('correct');
+        beepCorrect();
+        speak(numToWord(answer));
+        setTimeout(nextFn, 850);
+      }else{
+        btn.classList.add('wrong');
+        btns.find(b => +b.dataset.val === answer)?.classList.add('correct');
+        beepWrong();
+        setTimeout(nextFn, 1400);
+      }
+    };
+  });
+}
+
+function initCompare(){
+  if(state.mode === 'single'){
+    stage.innerHTML = buildSingleHTML('哪个数字更大？点击它', `<div id="box"></div>`);
+    const next = () => renderSingleCompare(document.getElementById('box'), next);
+    next();
+  }else{
+    startDualGame('compare');
+  }
+}
+
+/* ----- 游戏 5：数字配对（单人翻牌，双人抢答） ----- */
+function renderSingleMatch(container, nextFn) {
+  const count = Math.min(4, state.max - state.min + 1);
+  const nums = pickN(state.min, state.max, count);
+  const cards = [];
+  nums.forEach(n => {
+    cards.push({ n, type: 'num', text: String(n) });
+    cards.push({ n, type: 'word', text: numToWord(n) });
+  });
+  shuffle(cards);
+
+  container.innerHTML = `
+    <div class="match-grid">
+      ${cards.map(c => `<button class="match-card" data-n="${c.n}" data-type="${c.type}" data-text="${c.text}">?</button>`).join('')}
+    </div>`;
+
+  const grid = container.querySelector('.match-grid');
+  let flipped = [], lock = false, matched = 0;
+
+  grid.onclick = e => {
+    const card = e.target.closest('.match-card');
+    if(!card || lock || state.finished) return;
+    if(card.classList.contains('flipped') || card.classList.contains('matched')) return;
+
+    card.classList.add('flipped');
+    card.textContent = card.dataset.text;
+    flipped.push(card);
+
+    if(flipped.length === 2){
+      lock = true;
+      const [c1, c2] = flipped;
+      const isMatch = c1.dataset.n === c2.dataset.n;
+      if(isMatch){
+        setTimeout(() => {
+          c1.classList.add('matched');
+          c2.classList.add('matched');
+          matched++;
+          beepCorrect();
+          flipped = [];
+          lock = false;
+          if(matched === count) setTimeout(nextFn, 750);
+        }, 350);
+      }else{
+        beepWrong();
+        setTimeout(() => {
+          c1.classList.remove('flipped');
+          c2.classList.remove('flipped');
+          c1.textContent = '?'; c2.textContent = '?';
+          flipped = []; lock = false;
+        }, 850);
+      }
+    }
+  };
+}
+
+function initMatch(){
+  if(state.mode === 'single'){
+    stage.innerHTML = buildSingleHTML('翻牌：数字 + 对应英文单词 = 配对', `<div id="box"></div>`);
+    const next = () => renderSingleMatch(document.getElementById('box'), next);
+    next();
+  }else{
+    startDualGame('match');
+  }
+}
+
+/* ----- 游戏 6：英文排排看（优化版数字排序） ----- */
+function renderSingleOrder(container, nextFn) {
+  const count = Math.min(4, state.max - state.min + 1); // 最多4个单词，避免拥挤
+  const nums = pickN(state.min, state.max, count).sort((a, b) => a - b);
+  const shuffled = shuffle([...nums]);
+
+  // 提示玩家按从小到大点击英文单词
+  container.innerHTML = `
+    <div class="hint-text" style="margin-bottom:16px;color:#d97706;font-weight:800;">按从小到大依次点击英文单词</div>
+    <div class="order-slots" style="margin-bottom:16px;">
+      ${nums.map((_, i) => `<div class="slot" data-i="${i}"></div>`).join('')}
+    </div>
+    <div class="order-pool">
+      ${shuffled.map(n => `<button class="order-card" data-n="${n}">${numToWord(n)}</button>`).join('')}
+    </div>`;
+
+  const slots = container.querySelectorAll('.slot');
+  const pool = container.querySelector('.order-pool');
+  let idx = 0;
+
+  pool.onclick = e => {
+    const card = e.target.closest('.order-card');
+    if(!card || card.disabled || state.finished) return;
+    const n = +card.dataset.n;
+
+    if(n === nums[idx]){
+      // 点击正确：把英文单词填入槽位
+      slots[idx].textContent = numToWord(n);
+      slots[idx].classList.add('filled');
+      card.remove();
+      idx++;
+      beepCorrect();
+      speak(numToWord(n));
+      if(idx === nums.length) setTimeout(nextFn, 800);
+    }else{
+      beepWrong();
+      card.classList.add('shake');
+      setTimeout(() => card.classList.remove('shake'), 420);
+    }
+  };
+}
+
+function initOrder(){
+  if(state.mode === 'single'){
+    stage.innerHTML = buildSingleHTML('英文排排看', `<div id="box"></div>`);
+    const next = () => renderSingleOrder(document.getElementById('box'), next);
+    next();
+  }else{
+    startDualGame('order');
+  }
+}
+
+/* =========================================================
+   游戏注册表 & 启动
+   ========================================================= */
+const GAMES = {
+  num2word: { emoji:'🔢', title:'看数字选单词', desc:'看到数字，选出对应的英文', init: initNum2Word },
+  word2num: { emoji:'🔤', title:'看单词选数字', desc:'看到英文，选出对应的数字', init: initWord2Num },
+  listen:   { emoji:'🔊', title:'听音选数字',   desc:'听英文发音，选出听到的数字', init: initListen   },
+  compare:  { emoji:'⚖️', title:'数字比大小',   desc:'两个英文数字，哪个更大？',   init: initCompare  },
+  match:    { emoji:'🧩', title:'数字配对',     desc:'翻牌配对数字与英文单词',     init: initMatch    },
+  order:    { emoji:'📈', title:'英文排排看',   desc:'按从小到大依次点击英文单词', init: initOrder    }
+};
+
+gameGrid.innerHTML = Object.entries(GAMES).map(([id, g]) => `
+  <button class="game-card" data-id="${id}">
+    <div class="card-emoji">${g.emoji}</div>
+    <div class="card-title">${g.title}</div>
+    <div class="card-desc">${g.desc}</div>
+  </button>`).join('');
+
+gameGrid.addEventListener('click', e => {
+  const card = e.target.closest('.game-card');
+  if(!card) return;
+  state.gameId = card.dataset.id;
+  state.finished = false;
+  document.querySelector('.result-overlay')?.remove();
+  
+  updateRangeUI();
+  showView('gameView');
+  GAMES[state.gameId].init();
+});
+
+document.getElementById('backBtn').addEventListener('click', () => {
+  stopSpeak();
+  state.gameId = null;
+  state.finished = true;
+  
+  if(state.dual?.timerId) clearInterval(state.dual.timerId);
+  
+  document.querySelector('.result-overlay')?.remove();
+  showView('home');
+});
+
+// 初始化
+initRangeSelects();
+</script>
+</body>
+</html>
