@@ -21,16 +21,16 @@
     color:#d97706;margin-top:10px;
   }
   .home-sub{text-align:center;color:#a8a29e;margin-top:10px;font-size:.95rem;line-height:1.6;}
-  .game-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:16px;margin-top:30px;}
+  .game-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:16px;margin-top:30px;}
   .game-card{
-    background:#fff;border:2px solid #f0e9df;border-radius:24px;padding:24px 14px;text-align:center;cursor:pointer;
+    background:#fff;border:2px solid #f0e9df;border-radius:24px;padding:20px 14px;text-align:center;cursor:pointer;
     box-shadow:0 6px 0 #f0e9df;transition:transform .15s,box-shadow .15s;font-family:inherit;
   }
   .game-card:hover{transform:translateY(-4px);box-shadow:0 10px 0 #f0e9df;}
   .game-card:active{transform:translateY(2px);box-shadow:0 2px 0 #f0e9df;}
-  .card-emoji{font-size:2.6rem;line-height:1;filter:drop-shadow(0 4px 4px rgba(0,0,0,.06));}
-  .card-title{font-weight:800;font-size:1.1rem;margin-top:12px;color:#4a3f35;}
-  .card-desc{font-size:.8rem;color:#a8a29e;margin-top:8px;line-height:1.4;}
+  .card-emoji{font-size:2.4rem;line-height:1;filter:drop-shadow(0 4px 4px rgba(0,0,0,.06));}
+  .card-title{font-weight:800;font-size:1.05rem;margin-top:10px;color:#4a3f35;}
+  .card-desc{font-size:.75rem;color:#a8a29e;margin-top:6px;line-height:1.4;}
 
   /* ---------- 游戏页 ---------- */
   .view{display:none;}
@@ -199,7 +199,7 @@
   .match-card.flipped{background:#fff;border-color:#cbd5e1;color:#334155;box-shadow:0 4px 0 #cbd5e1;}
   .match-card.matched{opacity:0.15;pointer-events:none;transform:scale(.9);box-shadow:none;}
 
-  /* 英文排序（原数字排序）适配 */
+  /* 英文排序 */
   .order-slots,.order-pool{display:flex;gap:8px;flex-wrap:wrap;justify-content:center;width:100%;}
   .slot{
     min-width:60px; padding:10px 14px; border-radius:14px;border:2px dashed #cbd5e1;background:#faf8f5;
@@ -213,6 +213,16 @@
     line-height: 1.2; word-break: break-word;
   }
   .order-card:active{transform:translateY(4px);box-shadow:0 0 0 #d97706;}
+
+  /* 疯狂购物 (Shopping) */
+  .shop-item {
+    font-size: 3.5rem; margin-bottom: 10px; filter: drop-shadow(0 4px 6px rgba(0,0,0,0.1));
+  }
+  .shop-price {
+    font-size: 1.5rem; font-weight: 900; color: #d97706; background: #fef3c7;
+    padding: 4px 16px; border-radius: 12px; display: inline-block;
+    border: 2px dashed #fbbf24;
+  }
 
   /* 结果面板 */
   .result-overlay{
@@ -259,7 +269,7 @@
   <!-- ===== 首页 ===== -->
   <section id="home" class="view active">
     <h1 class="home-title">🔢 英文数字乐园</h1>
-    <p class="home-sub">自由选择范围 · 单人练习 · 双人限时抢答PK</p>
+    <p class="home-sub">8款小游戏 · 自由选择范围 · 单人练习 · 双人限时抢答PK</p>
     <div class="game-grid" id="gameGrid"></div>
   </section>
 
@@ -524,7 +534,6 @@ function startDualGame(gameId) {
   
   stage.innerHTML = buildDualHTML();
   
-  // 更新初始分数UI
   document.getElementById('score-p1').textContent = 0;
   document.getElementById('score-p2').textContent = 0;
   
@@ -541,7 +550,6 @@ function loadSharedQuestion(gameId) {
   d.locked = false;
   d.timeLeft = 8;
   
-  // 更新进度
   const progressText = `第 ${d.qIndex + 1}/${d.totalQ} 题`;
   document.getElementById('progress-p1').textContent = progressText;
   document.getElementById('progress-p2').textContent = progressText;
@@ -552,8 +560,8 @@ function loadSharedQuestion(gameId) {
   document.getElementById('timer-fill-p1').classList.remove('warning');
   document.getElementById('timer-fill-p2').classList.remove('warning');
 
-  // 生成题目数据
   let data;
+  // 生成各游戏的题目数据
   if (gameId === 'num2word') {
     const answer = randInt(state.min, state.max);
     data = { answer, opts: makeOptions(answer, state.min, state.max, 4) };
@@ -574,14 +582,25 @@ function loadSharedQuestion(gameId) {
     const isMax = Math.random() > 0.5;
     const answer = isMax ? Math.max(...opts) : Math.min(...opts);
     data = { answer, opts, isMax };
+  } else if (gameId === 'neighbors') {
+    let n = randInt(state.min, state.max);
+    let type = 'next';
+    if (n === state.max) type = 'prev';
+    else if (n === state.min) type = 'next';
+    else type = Math.random() > 0.5 ? 'next' : 'prev';
+    const answer = type === 'next' ? n + 1 : n - 1;
+    data = { n, type, answer, opts: makeOptions(answer, state.min, state.max, 4) };
+  } else if (gameId === 'shopping') {
+    const answer = randInt(state.min, state.max);
+    const items = ['🍎','🍌','🍇','🍓','🎈','🧸','🚗','✏️','🍰','🍕','🥤','👟'];
+    const emoji = items[randInt(0, items.length - 1)];
+    data = { answer, emoji, opts: makeOptions(answer, state.min, state.max, 4) };
   }
   d.currentData = data;
 
-  // 渲染左右两侧
   renderDualZone(0, gameId, data);
   renderDualZone(1, gameId, data);
 
-  // 启动共享倒计时
   clearInterval(d.timerId);
   d.timerId = setInterval(() => {
     d.timeLeft -= 0.1;
@@ -608,7 +627,6 @@ function handleSharedTimeout(gameId) {
   if (d.locked) return;
   d.locked = true;
   
-  // 禁用所有按钮
   const p1Btns = document.getElementById('body-p1').querySelectorAll('button');
   const p2Btns = document.getElementById('body-p2').querySelectorAll('button');
   p1Btns.forEach(b => b.disabled = true);
@@ -629,7 +647,6 @@ function onPlayerAnswer(playerIdx, isCorrect, btn) {
     clearInterval(d.timerId);
     beepCorrect();
     
-    // 加分
     if (playerIdx === 0) {
       d.scoreA += DUAL_POINTS_PER_Q;
       const el = document.getElementById('score-p1');
@@ -644,13 +661,11 @@ function onPlayerAnswer(playerIdx, isCorrect, btn) {
       setTimeout(() => el.classList.remove('pop'), 300);
     }
     
-    // 两边显示正确高亮
     const p1Btns = document.getElementById('body-p1').querySelectorAll('button');
     const p2Btns = document.getElementById('body-p2').querySelectorAll('button');
     p1Btns.forEach(b => { if (+b.dataset.val === d.currentData.answer) b.classList.add('correct'); b.disabled = true; });
     p2Btns.forEach(b => { if (+b.dataset.val === d.currentData.answer) b.classList.add('correct'); b.disabled = true; });
     
-    // 延迟跳下一题
     setTimeout(() => {
       d.qIndex++;
       loadSharedQuestion(d.gameId);
@@ -661,7 +676,6 @@ function onPlayerAnswer(playerIdx, isCorrect, btn) {
     btn.classList.add('wrong');
     btn.disabled = true;
     
-    // 检查是否双方都答错了
     const p1Btns = document.getElementById('body-p1').querySelectorAll('button');
     const p2Btns = document.getElementById('body-p2').querySelectorAll('button');
     let allDisabled = true;
@@ -671,7 +685,6 @@ function onPlayerAnswer(playerIdx, isCorrect, btn) {
     if (allDisabled) {
       d.locked = true;
       clearInterval(d.timerId);
-      // 两边高亮正确答案
       p1Btns.forEach(b => { if (+b.dataset.val === d.currentData.answer) b.classList.add('correct'); });
       p2Btns.forEach(b => { if (+b.dataset.val === d.currentData.answer) b.classList.add('correct'); });
       
@@ -717,23 +730,34 @@ function renderDualZone(playerIdx, gameId, data) {
         ${data.opts.map(o => `<button class="opt-btn" data-val="${o}">${numToWord(o)}</button>`).join('')}
       </div>`;
   } else if (gameId === 'order') {
-    // 双人模式下的英文排排看：抢答最大/最小的英文单词
     html = `
       <div class="hint-text" style="font-size:1.1rem;margin-bottom:16px;color:#d97706;font-weight:800;">点击 <span style="font-size:1.4rem;color:#ef4444">${data.isMax ? '最大' : '最小'}</span> 的英文</div>
       <div class="options" style="margin-top:4px;">
+        ${data.opts.map(o => `<button class="opt-btn" data-val="${o}">${numToWord(o)}</button>`).join('')}
+      </div>`;
+  } else if (gameId === 'neighbors') {
+    html = `
+      <div class="hint-text" style="font-size:1.1rem;margin-bottom:12px;color:#d97706;font-weight:800;">数字 ${numToWord(data.n)} 的<span style="color:#ef4444">${data.type === 'next' ? '下一个' : '前一个'}</span>是？</div>
+      <div class="big-word" style="font-size:2.2rem;">${numToWord(data.n)}</div>
+      <div class="options" style="margin-top:16px;">
+        ${data.opts.map(o => `<button class="opt-btn" data-val="${o}">${numToWord(o)}</button>`).join('')}
+      </div>`;
+  } else if (gameId === 'shopping') {
+    html = `
+      <div class="shop-item">${data.emoji}</div>
+      <div class="shop-price">$ ${data.answer}</div>
+      <div class="options" style="margin-top:16px;">
         ${data.opts.map(o => `<button class="opt-btn" data-val="${o}">${numToWord(o)}</button>`).join('')}
       </div>`;
   }
   
   container.innerHTML = html;
   
-  // 音频仅播报一次
   if (gameId === 'listen') {
     container.querySelector(`#spk-${playerIdx}`).onclick = () => speak(numToWord(data.answer));
     if (playerIdx === 0) setTimeout(() => speak(numToWord(data.answer)), 400);
   }
   
-  // 绑定点击事件
   const btns = container.querySelectorAll('button');
   btns.forEach(btn => {
     if (btn.id && btn.id.startsWith('spk')) return;
@@ -790,7 +814,7 @@ function handleSingleChoice(clickedBtn, answer, allBtns, nextFn){
   }
 }
 
-/* ----- 游戏 1：看数字选单词 ----- */
+/* ----- 1：看数字选单词 ----- */
 function renderSingleNum2Word(container, nextFn) {
   const answer = randInt(state.min, state.max);
   const opts = makeOptions(answer, state.min, state.max, 4);
@@ -818,7 +842,7 @@ function initNum2Word(){
   }
 }
 
-/* ----- 游戏 2：看单词选数字 ----- */
+/* ----- 2：看单词选数字 ----- */
 function renderSingleWord2Num(container, nextFn) {
   const answer = randInt(state.min, state.max);
   const opts = makeOptions(answer, state.min, state.max, 4);
@@ -845,7 +869,7 @@ function initWord2Num(){
   }
 }
 
-/* ----- 游戏 3：听音选数字 ----- */
+/* ----- 3：听音选数字 ----- */
 function renderSingleListen(container, nextFn) {
   const answer = randInt(state.min, state.max);
   const opts = makeOptions(answer, state.min, state.max, 4);
@@ -875,7 +899,7 @@ function initListen(){
   }
 }
 
-/* ----- 游戏 4：数字比大小 ----- */
+/* ----- 4：数字比大小 ----- */
 function renderSingleCompare(container, nextFn) {
   const pair = pickN(state.min, state.max, 2);
   const answer = Math.max(pair[0], pair[1]);
@@ -917,7 +941,7 @@ function initCompare(){
   }
 }
 
-/* ----- 游戏 5：数字配对（单人翻牌，双人抢答） ----- */
+/* ----- 5：数字配对 (单人翻牌) ----- */
 function renderSingleMatch(container, nextFn) {
   const count = Math.min(4, state.max - state.min + 1);
   const nums = pickN(state.min, state.max, count);
@@ -982,13 +1006,12 @@ function initMatch(){
   }
 }
 
-/* ----- 游戏 6：英文排排看（优化版数字排序） ----- */
+/* ----- 6：英文排排看 (单人排序) ----- */
 function renderSingleOrder(container, nextFn) {
-  const count = Math.min(4, state.max - state.min + 1); // 最多4个单词，避免拥挤
+  const count = Math.min(4, state.max - state.min + 1);
   const nums = pickN(state.min, state.max, count).sort((a, b) => a - b);
   const shuffled = shuffle([...nums]);
 
-  // 提示玩家按从小到大点击英文单词
   container.innerHTML = `
     <div class="hint-text" style="margin-bottom:16px;color:#d97706;font-weight:800;">按从小到大依次点击英文单词</div>
     <div class="order-slots" style="margin-bottom:16px;">
@@ -1008,7 +1031,6 @@ function renderSingleOrder(container, nextFn) {
     const n = +card.dataset.n;
 
     if(n === nums[idx]){
-      // 点击正确：把英文单词填入槽位
       slots[idx].textContent = numToWord(n);
       slots[idx].classList.add('filled');
       card.remove();
@@ -1034,6 +1056,73 @@ function initOrder(){
   }
 }
 
+/* ----- 7：数字接龙 (Neighbors) ----- */
+function renderSingleNeighbors(container, nextFn) {
+  let n = randInt(state.min, state.max);
+  let type = 'next';
+  if (n === state.max) type = 'prev';
+  else if (n === state.min) type = 'next';
+  else type = Math.random() > 0.5 ? 'next' : 'prev';
+  const answer = type === 'next' ? n + 1 : n - 1;
+  const opts = makeOptions(answer, state.min, state.max, 4);
+
+  container.innerHTML = `
+    <div class="hint-text" style="font-size:1.1rem;margin-bottom:12px;color:#d97706;font-weight:800;">数字 ${numToWord(n)} 的<span style="color:#ef4444">${type === 'next' ? '下一个' : '前一个'}</span>是？</div>
+    <div class="big-word">${numToWord(n)}</div>
+    <div class="options" style="margin-top:16px;">
+      ${opts.map(o => `<button class="opt-btn" data-val="${o}">${numToWord(o)}</button>`).join('')}
+    </div>`;
+  const btns = [...container.querySelectorAll('.opt-btn')];
+  container.querySelector('.options').onclick = e => {
+    const btn = e.target.closest('.opt-btn');
+    if(!btn || btn.disabled) return;
+    if(+btn.dataset.val === answer) speak(numToWord(answer));
+    handleSingleChoice(btn, answer, btns, nextFn);
+  };
+}
+
+function initNeighbors(){
+  if(state.mode === 'single'){
+    stage.innerHTML = buildSingleHTML('数字接龙 / 找邻居', `<div id="box"></div>`);
+    const next = () => renderSingleNeighbors(document.getElementById('box'), next);
+    next();
+  }else{
+    startDualGame('neighbors');
+  }
+}
+
+/* ----- 8：疯狂购物 (Shopping) ----- */
+function renderSingleShopping(container, nextFn) {
+  const answer = randInt(state.min, state.max);
+  const items = ['🍎','🍌','🍇','🍓','🎈','🧸','🚗','✏️','🍰','🍕','🥤','👟'];
+  const emoji = items[randInt(0, items.length - 1)];
+  const opts = makeOptions(answer, state.min, state.max, 4);
+
+  container.innerHTML = `
+    <div class="shop-item">${emoji}</div>
+    <div class="shop-price">$ ${answer}</div>
+    <div class="options" style="margin-top:16px;">
+      ${opts.map(o => `<button class="opt-btn" data-val="${o}">${numToWord(o)}</button>`).join('')}
+    </div>`;
+  const btns = [...container.querySelectorAll('.opt-btn')];
+  container.querySelector('.options').onclick = e => {
+    const btn = e.target.closest('.opt-btn');
+    if(!btn || btn.disabled) return;
+    if(+btn.dataset.val === answer) speak(numToWord(answer));
+    handleSingleChoice(btn, answer, btns, nextFn);
+  };
+}
+
+function initShopping(){
+  if(state.mode === 'single'){
+    stage.innerHTML = buildSingleHTML('疯狂购物', `<div id="box"></div>`);
+    const next = () => renderSingleShopping(document.getElementById('box'), next);
+    next();
+  }else{
+    startDualGame('shopping');
+  }
+}
+
 /* =========================================================
    游戏注册表 & 启动
    ========================================================= */
@@ -1043,7 +1132,9 @@ const GAMES = {
   listen:   { emoji:'🔊', title:'听音选数字',   desc:'听英文发音，选出听到的数字', init: initListen   },
   compare:  { emoji:'⚖️', title:'数字比大小',   desc:'两个英文数字，哪个更大？',   init: initCompare  },
   match:    { emoji:'🧩', title:'数字配对',     desc:'翻牌配对数字与英文单词',     init: initMatch    },
-  order:    { emoji:'📈', title:'英文排排看',   desc:'按从小到大依次点击英文单词', init: initOrder    }
+  order:    { emoji:'📈', title:'英文排排看',   desc:'按从小到大依次点击英文单词', init: initOrder    },
+  neighbors:{ emoji:'🔗', title:'数字接龙',     desc:'找数字的前一个或后一个',     init: initNeighbors},
+  shopping: { emoji:'🛍️', title:'疯狂购物',     desc:'根据商品价格选出英文单词',   init: initShopping }
 };
 
 gameGrid.innerHTML = Object.entries(GAMES).map(([id, g]) => `
